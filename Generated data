@@ -1,0 +1,74 @@
+import pandas as pd
+import numpy as np
+import random
+
+# Set seed for reproducibility
+np.random.seed(42)
+
+# Parameters
+num_families = 1000 #Number of family 
+members_per_family = np.random.randint(4, 8, size=num_families)  # 4 to 7 members per family
+total_rows = sum(members_per_family)
+
+# Initialize lists
+data = []
+
+roles = ['Grandfather', 'Grandmother', 'Father', 'Mother', 'Son', 'Daughter']
+genders = {'Grandfather': 'Male', 'Grandmother': 'Female',
+           'Father': 'Male', 'Mother': 'Female',
+           'Son': 'Male', 'Daughter': 'Female'}
+
+# Disease probabilities (influenced by age later تزيد كل شوي مع العمر)
+base_probs = { #Randomly
+    'Diabetes': 0.2,
+    'Hypertension': 0.25,
+    'Heart_Disease': 0.15
+}
+
+# Generate data
+person_id = 0
+for fam_id, size in enumerate(members_per_family):
+    family_roles = random.choices(roles, k=size)
+    for role in family_roles:
+        age = {
+            'Grandfather': np.random.randint(60, 85),
+            'Grandmother': np.random.randint(60, 85),
+            'Father': np.random.randint(35, 55),
+            'Mother': np.random.randint(30, 50),
+            'Son': np.random.randint(5, 25),
+            'Daughter': np.random.randint(5, 25)
+        }[role]
+
+        height = np.random.normal(165, 10)  # cm
+        weight = np.random.normal(70, 15)  # kg
+        gender = genders[role]
+
+        # Risk influenced by age
+        diabetes = int(np.random.rand() < (base_probs['Diabetes'] + 0.01 * (age // 10)))
+        hypertension = int(np.random.rand() < (base_probs['Hypertension'] + 0.01 * (age // 10)))
+        heart_disease = int(np.random.rand() < (base_probs['Heart_Disease'] + 0.01 * (age // 10)))
+
+        data.append({
+            'Family_ID': fam_id,
+            'Person_ID': person_id,
+            'Role': role,
+            'Age': age,
+            'Gender': gender,
+            'Height_cm': round(height, 1),
+            'Weight_kg': round(weight, 1),
+            'Has_Diabetes': diabetes,
+            'Has_Hypertension': hypertension,
+            'Has_Heart_Disease': heart_disease
+        })
+
+        person_id += 1
+
+# تحويل البيانات إلى DataFrame
+df = pd.DataFrame(data)
+
+# حفظها كـ ملف CSV على الجهاز
+df.to_csv("family_health_dataset.csv", index=False)
+
+print("✅ Dataset saved successfully as 'family_health_dataset.csv'")
+
+
